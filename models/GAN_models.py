@@ -8,11 +8,11 @@ from keras.models import *
 import matplotlib.pyplot as plt
 from keras.regularizers import *
 from keras.utils import plot_model
-
+import tensorflow as tf 
 # set seed for random number generators to get repeateable results
 fixed_seed_num = 1234
 np.random.seed(fixed_seed_num)
-tf.set_random_seed(fixed_seed_num)
+tf.random.set_seed(fixed_seed_num)
 
 def generator_model(x_shape,y_shape):
     

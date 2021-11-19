@@ -13,14 +13,15 @@ from time import time
 from keras.preprocessing.image import ImageDataGenerator
 from GAN_models import *
 from losses import *
+import tensorflow as tf
 
 # constants
-epochs = 50
+epochs = 10
 x_shape = 512
 y_shape = 512
 fixed_seed_num = 1234
 np.random.seed(fixed_seed_num)
-tf.set_random_seed(fixed_seed_num)
+tf.random.set_seed(fixed_seed_num)
 
 # trains cGAN model
 def train(gen, disc, cGAN, gray, rgb, gray_val, rgb_val, batch):
@@ -44,12 +45,12 @@ cGAN = cGAN_model(gen, disc)
 
 # compile with custom loss functions
 disc.compile(loss=['binary_crossentropy'], optimizer=Adam(lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08), metrics=['accuracy'])
-cGAN.compile(loss=['binary_crossentropy',custom_loss_2], loss_weights=[5, 100], optimizer=Adam(lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08))
+cGAN.compile(loss=['binary_crossentropy'], loss_weights=[5, 100], optimizer=Adam(lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08))
 tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
-cGAN.load_weights("../datasets/generated_images/model.h5")
+cGAN.load_weights("../datasets/generated_images_ori/cGAN_model.h5", by_name=True, skip_mismatch=True )
 
 # constants
-dataset = '../datasets/train/' 
+dataset = '../models/train/' 
 store2 = '../generated_images/'
 val_data = '../datasets/validation/'
 store = '../datasets/generated_Images/'
@@ -100,11 +101,11 @@ for e in range(epochs):
             # we need to break the loop by hand because
             # the generator loops indefinitely
             break
-    if e%5 == 0:
-        cGAN.save_weights(store+str(e)+'.h5') 
+    if e%2 == 0:
+        cGAN.save_weights(store+str(e)+'lastTrain.h5') 
     gen_image_val = gen.predict(gray_val, batch_size=8)
     # if e%1 == 0: 
     #     for j in range(val_samples):
     #         if not os.path.exists(store2+str(j)+'/'):
     #             os.mkdir(store+str(j)+'/')
-    #         cv2.imwrite(store+str(j)+'/'+str(e)+'.jpg', gen_image_val[j])
+    #         cv2.imwrite(store+str(j)+'/'+str(e)+'x'+'.jpg', gen_image_val[j])
